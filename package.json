@@ -1,0 +1,13 @@
+{
+  "name": "marketiq-sports",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "dev": "npx netlify dev",
+    "serve": "python3 -m http.server 8888"
+  },
+  "engines": {"node": ">=20"},
+  "devDependencies": {"netlify-cli": "^23.8.1"}
+}
