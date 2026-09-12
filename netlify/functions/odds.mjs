@@ -43,10 +43,10 @@ export default async (req) => {
   upstream.searchParams.set('oddsFormat', 'american');
   upstream.searchParams.set('dateFormat', 'iso');
   try {
-    const resp = await fetch(upstream, {headers:{accept:'application/json'}});
+    const resp = await fetch(upstream, {headers:{accept:'application/json'}, signal: AbortSignal.timeout(10_000)});
     const body = await resp.json();
     if (!resp.ok) return json(resp.status, {error:body?.message || body?.error || 'Odds provider request failed'});
-    return json(200, {data:body, quota:{remaining:resp.headers.get('x-requests-remaining'), used:resp.headers.get('x-requests-used'), last:resp.headers.get('x-requests-last')}});
+    return json(200, {data:body, fetchedAt:new Date().toISOString(), quota:{remaining:resp.headers.get('x-requests-remaining'), used:resp.headers.get('x-requests-used'), last:resp.headers.get('x-requests-last')}});
   } catch (err) {
     return json(502, {error:'Unable to reach odds provider', detail:String(err?.message || err)});
   }
@@ -55,5 +55,5 @@ export default async (req) => {
 export const config = { path: '/api/odds' };
 
 function json(status, body) {
-  return new Response(JSON.stringify(body), {status, headers:{'content-type':'application/json','cache-control':'no-store'}});
+  return new Response(JSON.stringify(body), {status, headers:{'content-type':'application/json','cache-control':status === 200 ? 'public, max-age=0, s-maxage=15, must-revalidate' : 'no-store'}});
 }
