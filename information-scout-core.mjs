@@ -116,6 +116,12 @@ export function normalizeFirecrawlResults(payload, context = {}, detectedAt = ne
       description: description || null,
       position: Number.isInteger(row?.position) ? row.position : null,
     }];
+  }).sort((a, b) => {
+    const relevance = (b.market_relevance ?? 0) - (a.market_relevance ?? 0);
+    if (relevance !== 0) return relevance;
+    const reliability = (b.source_reliability ?? 0) - (a.source_reliability ?? 0);
+    if (reliability !== 0) return reliability;
+    return (a.position ?? Number.MAX_SAFE_INTEGER) - (b.position ?? Number.MAX_SAFE_INTEGER);
   });
 }
 
