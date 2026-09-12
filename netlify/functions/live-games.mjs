@@ -18,14 +18,15 @@ export default async (req) => {
 
   const [sport, competition] = mapping;
   const date = url.searchParams.get('date') || ymd(new Date());
+  if (!/^\d{8}$/.test(date)) return json({ error: 'Date must be YYYYMMDD' }, 400);
   const endpoint = `https://site.api.espn.com/apis/site/v2/sports/${sport}/${competition}/scoreboard?dates=${date}&limit=100`;
 
   try {
-    const response = await fetch(endpoint, { headers: { accept: 'application/json' } });
+    const response = await fetch(endpoint, { headers: { accept: 'application/json' }, signal: AbortSignal.timeout(10_000) });
     if (!response.ok) return json({ error: 'Live score provider unavailable' }, 502);
     const body = await response.json();
     const events = (body.events || []).map(normalize).filter(Boolean);
-    return json({ source: 'ESPN scoreboard feed', league, date, events }, 200, 20);
+    return json({ source: 'ESPN scoreboard feed', fetchedAt: new Date().toISOString(), league, date, events }, 200, 20);
   } catch (error) {
     return json({ error: 'Unable to load live games', detail: String(error?.message || error) }, 502);
   }

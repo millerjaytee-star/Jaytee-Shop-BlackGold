@@ -7,7 +7,8 @@ export default async (req) => {
 
   const gate = Netlify.env.get('MARKETIQ_INFO_SCOUT_TOKEN') || '';
   const url = new URL(req.url);
-  if (!gate || url.searchParams.get('token') !== gate) return json(404, { ok: false });
+  const suppliedToken = req.headers.get('authorization')?.replace(/^Bearer /i, '') || url.searchParams.get('token');
+  if (!gate || suppliedToken !== gate) return json(404, { ok: false });
 
   const league = clean(url.searchParams.get('league') || '');
   const home = clean(url.searchParams.get('home') || '');
@@ -36,7 +37,6 @@ export default async (req) => {
     sources: [{ type: 'web' }, { type: 'news' }],
   };
 
-  const detectedAt = new Date().toISOString();
   try {
     const response = await fetch(FIRECRAWL_URL, {
       method: 'POST',
@@ -52,6 +52,8 @@ export default async (req) => {
       });
     }
 
+    // Evidence becomes known after receipt, not when the request was started.
+    const detectedAt = new Date().toISOString();
     const events = normalizeFirecrawlResults(payload, { eventId, league, home, away, entity }, detectedAt);
     return json(200, {
       ok: true,
