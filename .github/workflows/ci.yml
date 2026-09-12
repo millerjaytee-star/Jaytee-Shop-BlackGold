@@ -17,8 +17,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
-      - run: npm ci
+      - run: npm install --ignore-scripts
       - run: npm test
       - name: Syntax check serverless functions and core modules
         run: |
