@@ -18,10 +18,11 @@ MarketIQ Sports is a sports-market intelligence MVP. It is deliberately not a �
 - Demo mode that works without an API key.
 - Unit tests for odds math, de-vigging, EV, ranking and parlay filtering.
 - Netlify serverless proxy so the API key is not exposed in browser code.
+- Protected Firecrawl Information Scout for public injury, availability, lineup, weather, suspension, roster, coaching and travel evidence.
 
 ## Important model limitation
 
-The MVP is a **market-price engine**, not yet the full five-brain system. Consensus is being used as the initial market prior. It does not yet ingest injuries, weather, historical line movement, book leadership, projected closing lines, or calibrated sports models. Those are the next layers from the product blueprint.
+The MVP is still primarily a **market-price engine**. Consensus is being used as the initial market prior. Firecrawl now adds a first information-discovery layer, but MarketIQ does not yet persist a complete historical information timeline, learn book leadership, project closing lines, or run calibrated sports outcome models. Those are the next layers from the product blueprint.
 
 The current estimated edge answers: “Is this offered price favorable relative to the other books’ implied market consensus?” It does **not** mean “this team is guaranteed to win.”
 
@@ -30,9 +31,11 @@ The current estimated edge answers: “Is this offered price favorable relative 
 1. Create an API key at The Odds API.
 2. Copy `.env.example` to `.env`.
 3. Set `THE_ODDS_API_KEY`.
-4. Run `npm install`.
-5. Run `npm run dev`.
-6. Open the Netlify Dev URL.
+4. Optionally set `FIRECRAWL_API_KEY` for authenticated Firecrawl quotas; starter keyless mode remains supported.
+5. Set a strong server-only `MARKETIQ_INFO_SCOUT_TOKEN` before enabling the internal information endpoint.
+6. Run `npm install`.
+7. Run `npm run dev`.
+8. Open the Netlify Dev URL.
 
 ### Netlify environment variables
 
@@ -40,12 +43,14 @@ Set:
 
 - `THE_ODDS_API_KEY`
 - `ODDS_REGION=us`
+- `MARKETIQ_INFO_SCOUT_TOKEN`
+- `FIRECRAWL_API_KEY` (optional for starter keyless mode)
 
 No API secret is committed to GitHub.
 
 ## Provider design
 
-The live function currently uses The Odds API v4 because it exposes current event IDs, moneylines, spreads, totals and event-level additional markets in one API. The core analysis code is provider-agnostic: normalized event/book/market/outcome objects feed `logic.mjs`.
+The live odds function currently uses The Odds API v4 because it exposes current event IDs, moneylines, spreads, totals and event-level additional markets in one API. The Firecrawl Information Scout supplies public-web context but is not treated as a sportsbook price provider. Core analysis remains provider-agnostic.
 
 Future adapters should normalize to the same internal shape so MarketIQ is not permanently tied to one vendor.
 
@@ -78,7 +83,7 @@ The production Parlay Brain should add:
 
 1. Persist odds snapshots in Postgres/Supabase.
 2. Build opening/current/closing price history.
-3. Add injury/news/weather timestamps.
+3. Persist Firecrawl information events and align detection timestamps with odds movement.
 4. Build market movement + synchronization engine.
 5. Learn book leadership by sport/market.
 6. Add market-as-prior sports model.
