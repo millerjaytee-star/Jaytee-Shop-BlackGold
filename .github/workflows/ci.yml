@@ -1,0 +1,29 @@
+name: MarketIQ CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - name: Syntax check serverless functions and core modules
+        run: |
+          node --check logic.mjs
+          node --check information-scout-core.mjs
+          node --check netlify/functions/odds.mjs
+          node --check netlify/functions/live-games.mjs
+          node --check netlify/functions/information-scout.mjs
