@@ -19,12 +19,14 @@ MarketIQ Sports is a sports-market intelligence MVP. It is deliberately not a �
 - Unit tests for odds math, de-vigging, EV, ranking and parlay filtering.
 - Netlify serverless proxy so the API key is not exposed in browser code.
 - Protected Firecrawl Information Scout for public injury, availability, lineup, weather, suspension, roster, coaching and travel evidence.
+- Deterministic Market Clock foundation that detects sportsbook price changes and temporally aligns them with information events without claiming causality.
+- First-mover book counts, reaction-lag measurement, preexisting-movement flags, observed propagation span, and ordered INFORMATION / PRICE_MOVE timelines.
 
 ## Important model limitation
 
-The MVP is still primarily a **market-price engine**. Consensus is being used as the initial market prior. Firecrawl now adds a first information-discovery layer, but MarketIQ does not yet persist a complete historical information timeline, learn book leadership, project closing lines, or run calibrated sports outcome models. Those are the next layers from the product blueprint.
+The MVP is still primarily a **market-price engine**. Consensus is being used as the initial market prior. Firecrawl now adds a first information-discovery layer and the Market Clock can align timestamped evidence to timestamped odds observations, but MarketIQ does not yet persist the full historical stream required to learn stable book leadership, project closing lines, or run calibrated sports outcome models. Those remain research layers from the product blueprint.
 
-The current estimated edge answers: “Is this offered price favorable relative to the other books’ implied market consensus?” It does **not** mean “this team is guaranteed to win.”
+The current estimated edge answers: “Is this offered price favorable relative to the other books’ implied market consensus?” It does **not** mean “this team is guaranteed to win.” A price move that follows a news item is a temporal relationship and is not automatically attributed to that news.
 
 ## Setup
 
@@ -82,15 +84,15 @@ The production Parlay Brain should add:
 ## Roadmap
 
 1. Persist odds snapshots in Postgres/Supabase.
-2. Build opening/current/closing price history.
-3. Persist Firecrawl information events and align detection timestamps with odds movement.
-4. Build market movement + synchronization engine.
-5. Learn book leadership by sport/market.
-6. Add market-as-prior sports model.
-7. Add projected closing-line model.
-8. Add historical analog engine.
-9. Add calibrated parlay correlation model.
-10. Add Proof Ledger and backtesting dashboard.
+2. Persist reviewed Firecrawl information events.
+3. Run Market Clock analysis over append-only historical odds + information data.
+4. Build opening/current/closing price history and synchronization metrics.
+5. Learn book leadership by sport/market and information category.
+6. Estimate signal half-life and propagation speed.
+7. Add market-as-prior sports model.
+8. Add projected closing-line model.
+9. Add historical analog engine and Proof Ledger.
+10. Add calibrated parlay correlation model and backtesting dashboard.
 
 ## Responsible use
 
