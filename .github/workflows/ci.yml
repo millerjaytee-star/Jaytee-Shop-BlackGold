@@ -16,13 +16,14 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
       - run: npm install --ignore-scripts
       - run: npm test
       - name: Syntax check serverless functions and core modules
         run: |
           node --check logic.mjs
           node --check information-scout-core.mjs
+          node --check market-clock-core.mjs
           node --check netlify/functions/odds.mjs
           node --check netlify/functions/live-games.mjs
           node --check netlify/functions/information-scout.mjs
